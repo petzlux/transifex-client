@@ -41,7 +41,10 @@ if "https_proxy" in os.environ:
         proxy_url=proxy_url,
         num_pools=num_pools,
         cert_reqs=ssl.CERT_REQUIRED,
-        ca_certs=certs_file()
+        ca_certs=certs_file(),
+        proxy_headers= {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
+        }
     )
 else:
     managers["https"] = urllib3.PoolManager(
