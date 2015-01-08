@@ -40,14 +40,14 @@ if "https_proxy" in os.environ:
     managers["https"] = urllib3.ProxyManager(
         proxy_url=proxy_url,
         num_pools=num_pools,
-        cert_reqs=ssl.CERT_REQUIRED,
-        ca_certs=certs_file()
+        cert_reqs='CERT_NONE',
+        assert_hostname=False
     )
 else:
     managers["https"] = urllib3.PoolManager(
         num_pools=num_pools,
-        cert_reqs=ssl.CERT_REQUIRED,
-        ca_certs=certs_file()
+        cert_reqs='CERT_NONE',
+        assert_hostname=False
     )
 
 
