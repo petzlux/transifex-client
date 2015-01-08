@@ -22,12 +22,34 @@ from txclib.web import user_agent_identifier, certs_file
 from txclib.log import logger
 from txclib.packages.urllib3.exceptions import SSLError
 
-# Initialize a http pool manager
-manager = urllib3.PoolManager(
-    num_pools=1,
-    cert_reqs=ssl.CERT_REQUIRED,
-    ca_certs=certs_file()
-)
+
+# Initialize http and https pool managers
+num_pools = 1
+managers = {}
+if "http_proxy" in os.environ:
+    proxy_url = os.environ["http_proxy"]
+    managers["http"] = urllib3.ProxyManager(
+        proxy_url=proxy_url,
+        num_pools=num_pools
+    )
+else:
+    managers["http"] = urllib3.PoolManager(num_pools=num_pools)
+
+if "https_proxy" in os.environ:
+    proxy_url = os.environ["https_proxy"]
+    managers["https"] = urllib3.ProxyManager(
+        proxy_url=proxy_url,
+        num_pools=num_pools,
+        cert_reqs=ssl.CERT_REQUIRED,
+        ca_certs=certs_file()
+    )
+else:
+    managers["https"] = urllib3.PoolManager(
+        num_pools=num_pools,
+        cert_reqs=ssl.CERT_REQUIRED,
+        ca_certs=certs_file()
+    )
+
 
 class HttpNotFound(Exception):
     pass
@@ -113,6 +135,13 @@ def make_request_with_connection_info(
     request.type = method
     response = None
     try:
+        if host.startswith("http://"):
+            scheme = "http"
+        elif host.startswith("https://"):
+            scheme = "https"
+        else:
+            raise Exception("Unknown scheme")
+        manager = managers[scheme]
         response = manager.request(
             request.get_type(),
             request.get_full_url(),
