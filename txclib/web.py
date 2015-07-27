@@ -5,6 +5,8 @@ import platform
 from pkg_resources import resource_filename, resource_string
 import txclib
 
+CERTS_FILE = None
+
 
 def user_agent_identifier():
     """Return the user agent for the client."""
@@ -13,6 +15,10 @@ def user_agent_identifier():
 
 
 def certs_file():
+    return CERTS_FILE or system_certs_file()
+
+
+def system_certs_file():
     if platform.system() == 'Windows':
         # Workaround py2exe and resource_filename incompatibility.
         # Store the content in the filesystem permanently.

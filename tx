@@ -9,6 +9,7 @@ import txclib
 from txclib import utils
 from txclib.log import set_log_level, logger
 from txclib.packages.urllib3.exceptions import SSLError
+from txclib import web
 
 
 # This block ensures that ^C interrupts are handled quietly.
@@ -69,6 +70,10 @@ def main(argv):
         help="print full traceback on exceptions"
     )
     parser.add_option(
+        "--cacert", action="store", dest="cacert", default=None,
+        help="set path to CA certificate file"
+    )
+    parser.add_option(
         "--disable-colors", action="store_true", dest="color_disable",
         default=(os.name == 'nt' or not sys.stdout.isatty()),
         help="disable colors in the output of commands"
@@ -88,6 +93,8 @@ def main(argv):
 
     # find .tx
     path_to_tx = options.root_dir or utils.find_dot_tx()
+
+    web.CERTS_FILE = options.cacert
 
     cmd = args[0]
     try:
